@@ -17,7 +17,7 @@ import {
   Paper,
   Grid
 } from '@mui/material';
-import dayjs from 'dayjs';
+//import dayjs from 'dayjs';
 import { closingStockAPI } from '../services/api';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 

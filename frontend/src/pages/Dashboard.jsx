@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Grid, Card, CardContent, Typography, Button, Box, CircularProgress, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import AddIcon from '@mui/icons-material/Add';
-import { closingStockAPI, currentStockAPI } from '../services/api';
-import dayjs from 'dayjs';
+import {  currentStockAPI } from '../services/api';
+//import dayjs from 'dayjs';
 
 const Dashboard = ({ user }) => {
   const navigate = useNavigate();

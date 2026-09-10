@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Card,
@@ -54,20 +54,20 @@ const StockOutPage = () => {
   }, []);
 
   useEffect(() => {
-    if (formData.categoryId) {
-      loadSubCategories(formData.categoryId);
-    }
-  }, [formData.categoryId]);
+  if (formData.categoryId) {
+    loadSubCategories(formData.categoryId);
+  }
+}, [formData.categoryId, loadSubCategories]);
 
   useEffect(() => {
     loadHistory(1);
   }, []);
 
   useEffect(() => {
-    if (formData.productId) {
-      loadProductStock();
-    }
-  }, [formData.productId]);
+  if (formData.productId) {
+    loadProductStock();
+  }
+}, [formData.productId, loadProductStock]);
 
   const loadInitialData = async () => {
     try {
@@ -78,35 +78,35 @@ const StockOutPage = () => {
     }
   };
 
-  const loadSubCategories = async (categoryId) => {
-    try {
-      const res = await productsAPI.getSubCategories({ categoryId });
-      setSubCategories((res.data && res.data.data) || []);
-      setFormData(prev => ({ ...prev, subCategoryId: '', productId: '' }));
-      loadProducts(categoryId);
-    } catch (err) {
-      setError('Failed to load subcategories');
-    }
-  };
+  const loadSubCategories = useCallback(async (categoryId) => {
+  try {
+    const res = await productsAPI.getSubCategories({ categoryId });
+    setSubCategories((res.data && res.data.data) || []);
+    setFormData(prev => ({ ...prev, subCategoryId: '', productId: '' }));
+    loadProducts(categoryId);
+  } catch (err) {
+    setError('Failed to load subcategories');
+  }
+}, [loadProducts]);
 
-  const loadProducts = async (categoryId) => {
-    try {
-      const res = await productsAPI.getProducts({ categoryId });
-      setProducts((res.data && res.data.data) || []);
-    } catch (err) {
-      setError('Failed to load products');
-    }
-  };
+  const loadProducts = useCallback(async (categoryId) => {
+  try {
+    const res = await productsAPI.getProducts({ categoryId });
+    setProducts((res.data && res.data.data) || []);
+  } catch (err) {
+    setError('Failed to load products');
+  }
+}, []);
 
-  const loadProductStock = async () => {
-    try {
-      const res = await currentStockAPI.getByProduct(formData.productId);
-      setCurrentStock(res.data.data.currentStock || 0);
-    } catch (err) {
-      console.error('Failed to load product stock');
-      setCurrentStock(0);
-    }
-  };
+ const loadProductStock = useCallback(async () => {
+  try {
+    const res = await currentStockAPI.getByProduct(formData.productId);
+    setCurrentStock(res.data.data.currentStock || 0);
+  } catch (err) {
+    console.error('Failed to load product stock');
+    setCurrentStock(0);
+  }
+}, [formData.productId]);
 
   const loadHistory = async (pageNum) => {
     try {

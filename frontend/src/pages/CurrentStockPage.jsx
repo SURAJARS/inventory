@@ -42,15 +42,39 @@ const CurrentStockPage = () => {
     loadFilterOptions();
   }, []);
 
+  // Apply filters whenever stock data or filter values change
   useEffect(() => {
-    applyFilters();
+    let result = stockData;
+
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+
+      result = result.filter(
+        (item) =>
+          item.name?.toLowerCase().includes(searchLower) ||
+          item.code?.toLowerCase().includes(searchLower)
+      );
+    }
+
+    if (filters.categoryId) {
+      result = result.filter(
+        (item) => item.category === filters.categoryId
+      );
+    }
+
+    setFilteredData(result);
   }, [stockData, filters]);
 
   const loadData = async () => {
     try {
       setLoading(true);
+      setError('');
+
       const response = await currentStockAPI.getAll();
-      setStockData((response.data && response.data.data) || []);
+
+      setStockData(
+        (response.data && response.data.data) || []
+      );
     } catch (err) {
       setError('Failed to load current stock');
       console.error(err);
@@ -62,36 +86,29 @@ const CurrentStockPage = () => {
   const loadFilterOptions = async () => {
     try {
       const catRes = await productsAPI.getCategories();
-      setCategories((catRes.data && catRes.data.data) || []);
-    } catch (err) {
-      console.error('Failed to load filter options');
-    }
-  };
 
-  const applyFilters = () => {
-    let result = stockData;
-
-    if (filters.search) {
-      const searchLower = filters.search.toLowerCase();
-      result = result.filter(item =>
-        item.name.toLowerCase().includes(searchLower) ||
-        (item.code && item.code.toLowerCase().includes(searchLower))
+      setCategories(
+        (catRes.data && catRes.data.data) || []
       );
+    } catch (err) {
+      console.error('Failed to load filter options', err);
     }
-
-    if (filters.categoryId) {
-      result = result.filter(item => item.category === filters.categoryId);
-    }
-
-    setFilteredData(result);
   };
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setFilters(prev => ({
+
+    setFilters((prev) => ({
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleClearFilters = () => {
+    setFilters({
+      search: '',
+      categoryId: ''
+    });
   };
 
   return (
@@ -100,7 +117,11 @@ const CurrentStockPage = () => {
         Current Stock
       </Typography>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
 
       <Card sx={{ mb: 3 }}>
         <CardContent>
@@ -117,7 +138,9 @@ const CurrentStockPage = () => {
                 value={filters.search}
                 onChange={handleFilterChange}
                 InputProps={{
-                  startAdornment: <SearchIcon sx={{ mr: 1 }} />
+                  startAdornment: (
+                    <SearchIcon sx={{ mr: 1 }} />
+                  )
                 }}
               />
             </Grid>
@@ -125,15 +148,24 @@ const CurrentStockPage = () => {
             <Grid item xs={12} sm={6} md={3}>
               <FormControl fullWidth>
                 <InputLabel>Category</InputLabel>
+
                 <Select
                   name="categoryId"
                   value={filters.categoryId}
                   onChange={handleFilterChange}
                   label="Category"
                 >
-                  <MenuItem value="">All Categories</MenuItem>
-                  {categories.map(cat => (
-                    <MenuItem key={cat._id} value={cat._id}>{cat.name}</MenuItem>
+                  <MenuItem value="">
+                    All Categories
+                  </MenuItem>
+
+                  {categories.map((cat) => (
+                    <MenuItem
+                      key={cat._id}
+                      value={cat._id}
+                    >
+                      {cat.name}
+                    </MenuItem>
                   ))}
                 </Select>
               </FormControl>
@@ -143,9 +175,7 @@ const CurrentStockPage = () => {
               <Button
                 fullWidth
                 variant="outlined"
-                onClick={() => {
-                  setFilters({ search: '', categoryId: '' });
-                }}
+                onClick={handleClearFilters}
               >
                 Clear Filters
               </Button>
@@ -155,35 +185,66 @@ const CurrentStockPage = () => {
       </Card>
 
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            p: 4
+          }}
+        >
           <CircularProgress />
         </Box>
       ) : (
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
-              <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+              <TableRow
+                sx={{
+                  backgroundColor: '#f5f5f5'
+                }}
+              >
                 <TableCell>Category</TableCell>
                 <TableCell>Product Name</TableCell>
                 <TableCell>Code</TableCell>
-                <TableCell align="right">Current Stock</TableCell>
-                <TableCell align="center">Status</TableCell>
+                <TableCell align="right">
+                  Current Stock
+                </TableCell>
+                <TableCell align="center">
+                  Status
+                </TableCell>
               </TableRow>
             </TableHead>
+
             <TableBody>
               {filteredData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
+                  <TableCell
+                    colSpan={5}
+                    align="center"
+                    sx={{ py: 4 }}
+                  >
                     No stock data available
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredData.map(item => (
+                filteredData.map((item) => (
                   <TableRow key={item._id}>
-                    <TableCell>{item.category}</TableCell>
-                    <TableCell>{item.name}</TableCell>
-                    <TableCell>{item.code || '-'}</TableCell>
-                    <TableCell align="right">{item.currentStock}</TableCell>
+                    <TableCell>
+                      {item.category}
+                    </TableCell>
+
+                    <TableCell>
+                      {item.name}
+                    </TableCell>
+
+                    <TableCell>
+                      {item.code || '-'}
+                    </TableCell>
+
+                    <TableCell align="right">
+                      {item.currentStock}
+                    </TableCell>
+
                     <TableCell align="center">
                       <Box
                         sx={{
@@ -191,8 +252,12 @@ const CurrentStockPage = () => {
                           px: 2,
                           py: 0.5,
                           borderRadius: 1,
-                          backgroundColor: item.isLowStock ? '#ffebee' : '#e8f5e9',
-                          color: item.isLowStock ? '#c62828' : '#2e7d32'
+                          backgroundColor: item.isLowStock
+                            ? '#ffebee'
+                            : '#e8f5e9',
+                          color: item.isLowStock
+                            ? '#c62828'
+                            : '#2e7d32'
                         }}
                       >
                         {item.isLowStock ? 'Low' : 'OK'}

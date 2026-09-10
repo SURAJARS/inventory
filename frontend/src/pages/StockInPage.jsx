@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Card,
@@ -15,14 +15,13 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   Pagination,
   Select,
   MenuItem,
   FormControl,
   InputLabel
 } from '@mui/material';
-import dayjs from 'dayjs';
+//import dayjs from 'dayjs';
 import { stockInAPI, productsAPI, currentStockAPI } from '../services/api';
 
 const StockInPage = () => {
@@ -54,20 +53,20 @@ const StockInPage = () => {
   }, []);
 
   useEffect(() => {
-    if (formData.categoryId) {
-      loadSubCategories(formData.categoryId);
-    }
-  }, [formData.categoryId]);
+  if (formData.categoryId) {
+    loadSubCategories(formData.categoryId);
+  }
+}, [formData.categoryId, loadSubCategories]);
 
   useEffect(() => {
     loadHistory(1);
   }, []);
 
   useEffect(() => {
-    if (formData.productId) {
-      loadProductStock();
-    }
-  }, [formData.productId]);
+  if (formData.productId) {
+    loadProductStock();
+  }
+}, [formData.productId, loadProductStock]);
 
   const loadInitialData = async () => {
     try {
@@ -78,16 +77,16 @@ const StockInPage = () => {
     }
   };
 
-  const loadSubCategories = async (categoryId) => {
-    try {
-      const res = await productsAPI.getSubCategories({ categoryId });
-      setSubCategories((res.data && res.data.data) || []);
-      setFormData(prev => ({ ...prev, subCategoryId: '', productId: '' }));
-      loadProducts(categoryId);
-    } catch (err) {
-      setError('Failed to load subcategories');
-    }
-  };
+  const loadSubCategories = useCallback(async (categoryId) => {
+  try {
+    const res = await productsAPI.getSubCategories({ categoryId });
+    setSubCategories((res.data && res.data.data) || []);
+    setFormData(prev => ({ ...prev, subCategoryId: '', productId: '' }));
+    loadProducts(categoryId);
+  } catch (err) {
+    setError('Failed to load subcategories');
+  }
+}, []);
 
   const loadProducts = async (categoryId) => {
     try {
@@ -98,14 +97,14 @@ const StockInPage = () => {
     }
   };
 
-  const loadProductStock = async () => {
-    try {
-      const res = await currentStockAPI.getByProduct(formData.productId);
-      setCurrentStock((res.data && res.data.currentStock) || 0);
-    } catch (err) {
-      console.error('Failed to load product stock');
-    }
-  };
+  const loadProductStock = useCallback(async () => {
+  try {
+    const res = await currentStockAPI.getByProduct(formData.productId);
+    setCurrentStock((res.data && res.data.currentStock) || 0);
+  } catch (err) {
+    console.error('Failed to load product stock');
+  }
+}, [formData.productId]);
 
   const loadHistory = async (pageNum) => {
     try {
