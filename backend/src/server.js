@@ -24,7 +24,7 @@ app.use(helmet());
 app.use(
   cors({
     origin: [
-      'https://inventory-virid-rho.vercel.app/',
+      'https://inventory-virid-rho.vercel.app',
       'https://inventory-edtaavya1-kannan-stores-inventory.vercel.app',
       'http://localhost:3000'
     ],
