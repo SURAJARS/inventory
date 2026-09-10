@@ -21,7 +21,15 @@ const app = express();
 
 // Middleware
 app.use(helmet());
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      'https://inventory-edtaavya1-kannan-stores-inventory.vercel.app',
+      'http://localhost:3000'
+    ],
+    credentials: true
+  })
+);
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
