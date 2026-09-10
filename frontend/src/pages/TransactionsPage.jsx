@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Card,
@@ -42,42 +42,42 @@ const TransactionsPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    loadTransactions();
-    loadFilterOptions();
-  }, []);
+  
 
-  useEffect(() => {
-    loadTransactions();
-  }, [filters.page, filters.transactionType, filters.categoryId, filters.startDate, filters.endDate]);
+  const loadTransactions = useCallback(async () => {
+  try {
+    setLoading(true);
+    const queryParams = {
+      page: filters.page,
+      limit: filters.limit,
+      transactionType: filters.transactionType || undefined,
+      categoryId: filters.categoryId || undefined,
+      startDate: filters.startDate || undefined,
+      endDate: filters.endDate || undefined
+    };
 
-  const loadTransactions = async () => {
-    try {
-      setLoading(true);
-      const queryParams = {
-        page: filters.page,
-        limit: filters.limit,
-        transactionType: filters.transactionType || undefined,
-        categoryId: filters.categoryId || undefined,
-        startDate: filters.startDate || undefined,
-        endDate: filters.endDate || undefined
-      };
+    // Remove undefined values
+    Object.keys(queryParams).forEach(key =>
+      queryParams[key] === undefined && delete queryParams[key]
+    );
 
-      // Remove undefined values
-      Object.keys(queryParams).forEach(key =>
-        queryParams[key] === undefined && delete queryParams[key]
-      );
-
-      const response = await closingStockAPI.getTransactions(queryParams);
-      setTransactions((response.data && response.data.data) || []);
-      setTotalPages((response.data && response.data.pagination && response.data.pagination.pages) || 0);
-    } catch (err) {
-      setError('Failed to load transactions');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const response = await closingStockAPI.getTransactions(queryParams);
+    setTransactions((response.data && response.data.data) || []);
+    setTotalPages((response.data && response.data.pagination && response.data.pagination.pages) || 0);
+  } catch (err) {
+    setError('Failed to load transactions');
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+}, [
+  filters.page,
+  filters.limit,
+  filters.transactionType,
+  filters.categoryId,
+  filters.startDate,
+  filters.endDate
+]);
 
   const loadFilterOptions = async () => {
     try {
@@ -87,6 +87,14 @@ const TransactionsPage = () => {
       console.error('Failed to load filter options');
     }
   };
+
+  useEffect(() => {
+  loadFilterOptions();
+}, []);
+
+useEffect(() => {
+  loadTransactions();
+}, [loadTransactions]);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;

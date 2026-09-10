@@ -15,14 +15,13 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   Pagination,
   Select,
   MenuItem,
   FormControl,
   InputLabel
 } from '@mui/material';
-import dayjs from 'dayjs';
+//import dayjs from 'dayjs';
 import { stockOutAPI, productsAPI, currentStockAPI } from '../services/api';
 
 const StockOutPage = () => {
@@ -53,21 +52,21 @@ const StockOutPage = () => {
     loadInitialData();
   }, []);
 
-  useEffect(() => {
+  /*useEffect(() => {
   if (formData.categoryId) {
     loadSubCategories(formData.categoryId);
   }
-}, [formData.categoryId, loadSubCategories]);
+}, [formData.categoryId, loadSubCategories]);*/
 
   useEffect(() => {
     loadHistory(1);
   }, []);
 
-  useEffect(() => {
+  /*useEffect(() => {
   if (formData.productId) {
     loadProductStock();
   }
-}, [formData.productId, loadProductStock]);
+}, [formData.productId, loadProductStock]);*/
 
   const loadInitialData = async () => {
     try {
@@ -107,6 +106,18 @@ const StockOutPage = () => {
     setCurrentStock(0);
   }
 }, [formData.productId]);
+
+useEffect(() => {
+  if (formData.categoryId) {
+    loadSubCategories(formData.categoryId);
+  }
+}, [formData.categoryId, loadSubCategories]);
+
+useEffect(() => {
+  if (formData.productId) {
+    loadProductStock();
+  }
+}, [formData.productId, loadProductStock]);
 
   const loadHistory = async (pageNum) => {
     try {

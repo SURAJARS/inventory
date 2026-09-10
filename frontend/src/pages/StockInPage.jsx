@@ -52,21 +52,21 @@ const StockInPage = () => {
     loadInitialData();
   }, []);
 
-  useEffect(() => {
+  /*useEffect(() => {
   if (formData.categoryId) {
     loadSubCategories(formData.categoryId);
   }
-}, [formData.categoryId, loadSubCategories]);
+}, [formData.categoryId, loadSubCategories]);*/
 
   useEffect(() => {
     loadHistory(1);
   }, []);
 
-  useEffect(() => {
+  /*useEffect(() => {
   if (formData.productId) {
     loadProductStock();
   }
-}, [formData.productId, loadProductStock]);
+}, [formData.productId, loadProductStock]);*/
 
   const loadInitialData = async () => {
     try {
@@ -105,6 +105,18 @@ const StockInPage = () => {
     console.error('Failed to load product stock');
   }
 }, [formData.productId]);
+
+useEffect(() => {
+  if (formData.categoryId) {
+    loadSubCategories(formData.categoryId);
+  }
+}, [formData.categoryId, loadSubCategories]);
+
+useEffect(() => {
+  if (formData.productId) {
+    loadProductStock();
+  }
+}, [formData.productId, loadProductStock]);
 
   const loadHistory = async (pageNum) => {
     try {
