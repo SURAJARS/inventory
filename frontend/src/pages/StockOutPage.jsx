@@ -77,6 +77,15 @@ const StockOutPage = () => {
     }
   };
 
+  const loadProducts = useCallback(async (categoryId) => {
+  try {
+    const res = await productsAPI.getProducts({ categoryId });
+    setProducts((res.data && res.data.data) || []);
+  } catch (err) {
+    setError('Failed to load products');
+  }
+}, []);
+
   const loadSubCategories = useCallback(async (categoryId) => {
   try {
     const res = await productsAPI.getSubCategories({ categoryId });
@@ -88,14 +97,7 @@ const StockOutPage = () => {
   }
 }, [loadProducts]);
 
-  const loadProducts = useCallback(async (categoryId) => {
-  try {
-    const res = await productsAPI.getProducts({ categoryId });
-    setProducts((res.data && res.data.data) || []);
-  } catch (err) {
-    setError('Failed to load products');
-  }
-}, []);
+  
 
  const loadProductStock = useCallback(async () => {
   try {
