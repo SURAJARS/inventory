@@ -230,7 +230,7 @@ useEffect(() => {
                 ) : (
                   transactions.map(txn => (
                     <TableRow key={txn._id}>
-                      <TableCell>{dayjs(txn.transactionDate).format('DD-MM-YYYY HH:mm')}</TableCell>
+                      <TableCell>{dayjs(txn.createdAt).format('DD-MM-YYYY HH:mm')}</TableCell>
                       <TableCell>
                         <Box
                           sx={{

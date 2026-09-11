@@ -131,15 +131,18 @@ export const getClosingStockReport = async (closingDate, filters = {}) => {
     // Group by product
     const productMap = new Map();
     transactions.forEach((txn) => {
+      // Skip transactions with null product (deleted products)
+      if (!txn.productId) return;
+      
       const key = txn.productId._id;
       if (!productMap.has(key)) {
         productMap.set(key, {
           productId: txn.productId._id,
           productName: txn.productId.name,
-          categoryName: txn.categoryId?.name,
-          subCategoryName: txn.subCategoryId?.name,
-          brandName: txn.brandId?.name,
-          unitCode: txn.unitId?.code,
+          categoryName: txn.categoryId?.name || '-',
+          subCategoryName: txn.subCategoryId?.name || '-',
+          brandName: txn.brandId?.name || '-',
+          unitCode: txn.unitId?.code || '-',
           stockIn: 0,
           stockOut: 0,
           transactionCount: 0

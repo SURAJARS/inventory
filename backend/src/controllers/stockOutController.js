@@ -55,15 +55,11 @@ export const createStockOut = async (req, res, next) => {
 
     // Create transaction
     const systemUserId = req.user?.id || new mongoose.Types.ObjectId(); // Create new ObjectId if no user
-    console.log('Stock Out - User Info:', {
-      'req.user': req.user,
-      'req.user?.id': req.user?.id,
-      'systemUserId': systemUserId,
-      'systemUserId type': typeof systemUserId
-    });
+    // Use server time for accurate timestamp (not just date from frontend)
+    const txnDate = transactionDate ? new Date(transactionDate) : new Date();
     
     const transaction = new InventoryTransaction({
-      transactionDate: new Date(transactionDate),
+      transactionDate: txnDate,
       transactionType: 'STOCK_OUT',
       productId,
       categoryId: product.categoryId._id,

@@ -44,8 +44,10 @@ export const createStockIn = async (req, res, next) => {
 
     // Create transaction
     const systemUserId = req.user?.id || new mongoose.Types.ObjectId();
+    // Use server time for accurate timestamp (not just date from frontend)
+    const txnDate = transactionDate ? new Date(transactionDate) : new Date();
     const transaction = new InventoryTransaction({
-      transactionDate: new Date(transactionDate),
+      transactionDate: txnDate,
       transactionType: 'STOCK_IN',
       productId,
       categoryId: product.categoryId._id,
