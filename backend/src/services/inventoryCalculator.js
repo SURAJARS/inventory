@@ -158,9 +158,19 @@ export const getClosingStockReport = async (closingDate, filters = {}) => {
 
     // Group by product
     const productMap = new Map();
+    let orphanedStockIn = 0;
+    let orphanedStockOut = 0;
+
     transactions.forEach((txn) => {
-      // Skip transactions with null product (deleted products)
-      if (!txn.productId) return;
+      // Handle transactions with null product (deleted products or orphaned records)
+      if (!txn.productId) {
+        if (txn.transactionType === 'STOCK_IN') {
+          orphanedStockIn += txn.quantity;
+        } else {
+          orphanedStockOut += txn.quantity;
+        }
+        return;
+      }
       
       const key = txn.productId._id;
       if (!productMap.has(key)) {
@@ -186,11 +196,37 @@ export const getClosingStockReport = async (closingDate, filters = {}) => {
       product.transactionCount++;
     });
 
+    // Add orphaned transactions as a separate entry if any exist
+    if (orphanedStockIn > 0 || orphanedStockOut > 0) {
+      const key = 'ORPHANED';
+      productMap.set(key, {
+        productId: null,
+        productName: '[Deleted/Orphaned Product]',
+        categoryName: '-',
+        subCategoryName: '-',
+        brandName: '-',
+        unitCode: '-',
+        stockIn: orphanedStockIn,
+        stockOut: orphanedStockOut,
+        transactionCount: (orphanedStockIn > 0 ? 1 : 0) + (orphanedStockOut > 0 ? 1 : 0)
+      });
+      console.log('WARNING: Found orphaned transactions (deleted products):', {
+        stockIn: orphanedStockIn,
+        stockOut: orphanedStockOut
+      });
+    }
+
     // Calculate opening and closing stock
     const reportData = [];
-    for (const [productId, productData] of productMap) {
-      const openingStock = await OpeningStock.findOne({ productId });
-      const openingQty = openingStock?.quantity || 0;
+    for (const [productKey, productData] of productMap) {
+      let openingQty = 0;
+      
+      // For orphaned products, don't try to look up opening stock
+      if (productData.productId) {
+        const openingStock = await OpeningStock.findOne({ productId: productData.productId });
+        openingQty = openingStock?.quantity || 0;
+      }
+      
       const closingQty = openingQty + productData.stockIn - productData.stockOut;
 
       reportData.push({
