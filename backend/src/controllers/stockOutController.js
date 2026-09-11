@@ -55,8 +55,9 @@ export const createStockOut = async (req, res, next) => {
 
     // Create transaction
     const systemUserId = req.user?.id || new mongoose.Types.ObjectId(); // Create new ObjectId if no user
-    // Use server time for accurate timestamp (not just date from frontend)
-    const txnDate = transactionDate ? new Date(transactionDate) : new Date();
+    // Parse date from frontend (format: YYYY-MM-DD) with current server time
+    // Store as UTC to ensure consistency across timezones
+    const txnDate = transactionDate ? new Date(transactionDate + 'T' + new Date().toISOString().split('T')[1]) : new Date();
     
     const transaction = new InventoryTransaction({
       transactionDate: txnDate,
