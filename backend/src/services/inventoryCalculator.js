@@ -109,15 +109,25 @@ export const getClosingStock = async (productId, closingDate) => {
  */
 export const getClosingStockReport = async (closingDate, filters = {}) => {
   try {
-    const endOfDay = new Date(closingDate);
-    endOfDay.setHours(23, 59, 59, 999);
+    // Parse date properly - closingDate comes as YYYY-MM-DD in UTC
+    // Create start and end of day in UTC
+    const startOfDay = new Date(closingDate + 'T00:00:00.000Z');
+    const endOfDay = new Date(closingDate + 'T23:59:59.999Z');
 
-    // Build match stage based on filters
+    console.log('Closing Stock Report - Date Range:', {
+      closingDate,
+      startOfDay: startOfDay.toISOString(),
+      endOfDay: endOfDay.toISOString()
+    });
+
+    // Build match stage based on filters - Query all transactions up to end of day
     const matchStage = { transactionDate: { $lte: endOfDay } };
     if (filters.categoryId) matchStage.categoryId = filters.categoryId;
     if (filters.subCategoryId) matchStage.subCategoryId = filters.subCategoryId;
     if (filters.brandId) matchStage.brandId = filters.brandId;
     if (filters.productId) matchStage.productId = filters.productId;
+
+    console.log('Closing Stock Match Stage:', matchStage);
 
     // Get all transactions up to the date
     const transactions = await InventoryTransaction.find(matchStage)
@@ -127,6 +137,24 @@ export const getClosingStockReport = async (closingDate, filters = {}) => {
       .populate('brandId')
       .populate('unitId')
       .lean();
+
+    console.log('Closing Stock - Transactions Found:', transactions.length, {
+      transactionCount: transactions.length,
+      allTransactionDates: transactions.map(t => ({
+        date: t.transactionDate,
+        dateISO: t.transactionDate?.toISOString?.(),
+        type: t.transactionType,
+        product: t.productId?.name,
+        qty: t.quantity
+      })),
+      sampleTransactions: transactions.slice(0, 3).map(t => ({
+        id: t._id,
+        transactionDate: t.transactionDate?.toISOString(),
+        type: t.transactionType,
+        quantity: t.quantity,
+        productId: t.productId?._id
+      }))
+    });
 
     // Group by product
     const productMap = new Map();
@@ -171,6 +199,21 @@ export const getClosingStockReport = async (closingDate, filters = {}) => {
         closingStock: Math.max(0, closingQty)
       });
     }
+
+    console.log('Closing Stock Report Final Data:', {
+      closingDate,
+      productsCount: reportData.length,
+      totalStockIn: reportData.reduce((sum, p) => sum + p.stockIn, 0),
+      totalStockOut: reportData.reduce((sum, p) => sum + p.stockOut, 0),
+      sampleProducts: reportData.slice(0, 2).map(p => ({
+        productId: p.productId,
+        productName: p.productName,
+        openingStock: p.openingStock,
+        stockIn: p.stockIn,
+        stockOut: p.stockOut,
+        closingStock: p.closingStock
+      }))
+    });
 
     return reportData;
   } catch (err) {
