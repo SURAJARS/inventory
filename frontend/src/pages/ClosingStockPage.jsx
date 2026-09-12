@@ -204,9 +204,7 @@ const ClosingStockPage = () => {
                 <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
                   <TableCell>Category</TableCell>
                   <TableCell>Sub-Category</TableCell>
-                  <TableCell>Brand</TableCell>
                   <TableCell>Product</TableCell>
-                  <TableCell>Unit</TableCell>
                   <TableCell align="right">Opening</TableCell>
                   <TableCell align="right">Stock In</TableCell>
                   <TableCell align="right">Stock Out</TableCell>
@@ -216,7 +214,7 @@ const ClosingStockPage = () => {
               <TableBody>
                 {reportData.products.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} align="center" sx={{ py: 4 }}>
+                    <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
                       No inventory data for the selected date
                     </TableCell>
                   </TableRow>
@@ -225,9 +223,7 @@ const ClosingStockPage = () => {
                     <TableRow key={idx}>
                       <TableCell>{product.categoryName}</TableCell>
                       <TableCell>{product.subCategoryName}</TableCell>
-                      <TableCell>{product.brandName}</TableCell>
                       <TableCell>{product.productName}</TableCell>
-                      <TableCell>{product.unitCode}</TableCell>
                       <TableCell align="right">{product.openingStock}</TableCell>
                       <TableCell align="right" sx={{ color: 'success.main' }}>
                         +{product.stockIn}
