@@ -121,7 +121,11 @@ export const getClosingStockReport = async (closingDate, filters = {}) => {
     });
 
     // Build match stage based on filters - Query all transactions up to end of day
-    const matchStage = { transactionDate: { $lte: endOfDay } };
+    // Exclude orphaned transactions (productId is null)
+    const matchStage = { 
+      transactionDate: { $lte: endOfDay },
+      productId: { $ne: null }
+    };
     if (filters.categoryId) matchStage.categoryId = filters.categoryId;
     if (filters.subCategoryId) matchStage.subCategoryId = filters.subCategoryId;
     if (filters.brandId) matchStage.brandId = filters.brandId;
@@ -158,19 +162,11 @@ export const getClosingStockReport = async (closingDate, filters = {}) => {
 
     // Group by product
     const productMap = new Map();
-    let orphanedStockIn = 0;
-    let orphanedStockOut = 0;
 
     transactions.forEach((txn) => {
-      // Handle transactions with null product (deleted products or orphaned records)
-      if (!txn.productId) {
-        if (txn.transactionType === 'STOCK_IN') {
-          orphanedStockIn += txn.quantity;
-        } else {
-          orphanedStockOut += txn.quantity;
-        }
-        return;
-      }
+      // Skip transactions with null product (deleted products)
+      // These will be cleaned up and should not appear in any reports
+      if (!txn.productId) return;
       
       const key = txn.productId._id;
       if (!productMap.has(key)) {
@@ -195,26 +191,6 @@ export const getClosingStockReport = async (closingDate, filters = {}) => {
       }
       product.transactionCount++;
     });
-
-    // Add orphaned transactions as a separate entry if any exist
-    if (orphanedStockIn > 0 || orphanedStockOut > 0) {
-      const key = 'ORPHANED';
-      productMap.set(key, {
-        productId: null,
-        productName: '[Deleted/Orphaned Product]',
-        categoryName: '-',
-        subCategoryName: '-',
-        brandName: '-',
-        unitCode: '-',
-        stockIn: orphanedStockIn,
-        stockOut: orphanedStockOut,
-        transactionCount: (orphanedStockIn > 0 ? 1 : 0) + (orphanedStockOut > 0 ? 1 : 0)
-      });
-      console.log('WARNING: Found orphaned transactions (deleted products):', {
-        stockIn: orphanedStockIn,
-        stockOut: orphanedStockOut
-      });
-    }
 
     // Calculate opening and closing stock
     const reportData = [];
@@ -263,7 +239,7 @@ export const getClosingStockReport = async (closingDate, filters = {}) => {
  */
 export const getTransactionHistory = async (filters = {}, page = 1, limit = 50) => {
   try {
-    const query = {};
+    const query = { productId: { $ne: null } }; // Exclude orphaned transactions
 
     if (filters.transactionType) query.transactionType = filters.transactionType;
     if (filters.categoryId) query.categoryId = filters.categoryId;
