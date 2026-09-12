@@ -121,10 +121,10 @@ export const getClosingStockReport = async (closingDate, filters = {}) => {
     });
 
     // Build match stage based on filters - Query all transactions up to end of day
-    // Exclude orphaned transactions (productId is null)
+    // Exclude orphaned transactions (productId is null or doesn't exist)
     const matchStage = { 
       transactionDate: { $lte: endOfDay },
-      productId: { $ne: null }
+      productId: { $exists: true, $ne: null }
     };
     if (filters.categoryId) matchStage.categoryId = filters.categoryId;
     if (filters.subCategoryId) matchStage.subCategoryId = filters.subCategoryId;
@@ -239,7 +239,7 @@ export const getClosingStockReport = async (closingDate, filters = {}) => {
  */
 export const getTransactionHistory = async (filters = {}, page = 1, limit = 50) => {
   try {
-    const query = { productId: { $ne: null } }; // Exclude orphaned transactions
+    const query = { productId: { $exists: true, $ne: null } }; // Exclude orphaned transactions
 
     if (filters.transactionType) query.transactionType = filters.transactionType;
     if (filters.categoryId) query.categoryId = filters.categoryId;
