@@ -32,7 +32,6 @@ export const createStockIn = async (req, res, next) => {
     const product = await Product.findById(productId)
       .populate('categoryId')
       .populate('subCategoryId')
-      .populate('brandId')
       .populate('unitId');
 
     if (!product) {
@@ -53,7 +52,7 @@ export const createStockIn = async (req, res, next) => {
       productId,
       categoryId: product.categoryId._id,
       subCategoryId: product.subCategoryId._id,
-      brandId: product.brandId ? product.brandId._id : null,
+      brand: product.brand || null,
       quantity,
       unitId: product.unitId ? product.unitId._id : null,
       performedBy: systemUserId,
@@ -105,7 +104,6 @@ export const getStockInHistory = async (req, res, next) => {
       .populate('productId', 'name')
       .populate('categoryId', 'name')
       .populate('subCategoryId', 'name')
-      .populate('brandId', 'name')
       .populate('unitId', 'code')
       .populate('performedBy', 'fullName')
       .sort({ transactionDate: -1 })
@@ -139,7 +137,6 @@ export const getStockInById = async (req, res, next) => {
       .populate('productId')
       .populate('categoryId')
       .populate('subCategoryId')
-      .populate('brandId')
       .populate('unitId')
       .populate('performedBy', 'fullName');
 

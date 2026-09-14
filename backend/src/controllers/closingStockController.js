@@ -10,7 +10,7 @@ import { generateClosingStockExcel, generateTransactionExcel } from '../services
 // ===== CLOSING STOCK =====
 export const calculateClosingStock = async (req, res, next) => {
   try {
-    const { closingDate, categoryId, subCategoryId, brandId, productId } = req.body;
+    const { closingDate, categoryId, subCategoryId, brand, productId } = req.body;
 
     if (!closingDate) {
       return res.status(400).json({
@@ -22,7 +22,7 @@ export const calculateClosingStock = async (req, res, next) => {
     const filters = {};
     if (categoryId) filters.categoryId = categoryId;
     if (subCategoryId) filters.subCategoryId = subCategoryId;
-    if (brandId) filters.brandId = brandId;
+    if (brand) filters.brand = brand;
     if (productId) filters.productId = productId;
 
     const reportData = await getClosingStockReport(closingDate, filters);
@@ -42,7 +42,7 @@ export const calculateClosingStock = async (req, res, next) => {
 
 export const downloadClosingStockPDF = async (req, res, next) => {
   try {
-    const { closingDate, categoryId, subCategoryId, brandId, productId } = req.query;
+    const { closingDate, categoryId, subCategoryId, brand, productId } = req.query;
 
     if (!closingDate) {
       return res.status(400).json({
@@ -54,7 +54,7 @@ export const downloadClosingStockPDF = async (req, res, next) => {
     const filters = {};
     if (categoryId) filters.categoryId = categoryId;
     if (subCategoryId) filters.subCategoryId = subCategoryId;
-    if (brandId) filters.brandId = brandId;
+    if (brand) filters.brand = brand;
     if (productId) filters.productId = productId;
 
     const reportData = await getClosingStockReport(closingDate, filters);
@@ -78,7 +78,7 @@ export const downloadClosingStockPDF = async (req, res, next) => {
 
 export const downloadClosingStockExcel = async (req, res, next) => {
   try {
-    const { closingDate, categoryId, subCategoryId, brandId, productId } = req.query;
+    const { closingDate, categoryId, subCategoryId, brand, productId } = req.query;
 
     if (!closingDate) {
       return res.status(400).json({
@@ -90,7 +90,7 @@ export const downloadClosingStockExcel = async (req, res, next) => {
     const filters = {};
     if (categoryId) filters.categoryId = categoryId;
     if (subCategoryId) filters.subCategoryId = subCategoryId;
-    if (brandId) filters.brandId = brandId;
+    if (brand) filters.brand = brand;
     if (productId) filters.productId = productId;
 
     const reportData = await getClosingStockReport(closingDate, filters);
@@ -121,7 +121,7 @@ export const getTransactions = async (req, res, next) => {
       transactionType,
       categoryId,
       subCategoryId,
-      brandId,
+      brand,
       productId,
       performedBy,
       startDate,
@@ -132,7 +132,7 @@ export const getTransactions = async (req, res, next) => {
     if (transactionType) filters.transactionType = transactionType;
     if (categoryId) filters.categoryId = categoryId;
     if (subCategoryId) filters.subCategoryId = subCategoryId;
-    if (brandId) filters.brandId = brandId;
+    if (brand) filters.brand = brand;
     if (productId) filters.productId = productId;
     if (performedBy) filters.performedBy = performedBy;
     if (startDate) filters.startDate = startDate;
@@ -152,7 +152,7 @@ export const getTransactions = async (req, res, next) => {
 
 export const downloadTransactionsPDF = async (req, res, next) => {
   try {
-    const { startDate, endDate, transactionType, categoryId, subCategoryId, brandId, productId } =
+    const { startDate, endDate, transactionType, categoryId, subCategoryId, brand, productId } =
       req.query;
 
     if (!startDate || !endDate) {
@@ -167,7 +167,7 @@ export const downloadTransactionsPDF = async (req, res, next) => {
     if (transactionType) query.transactionType = transactionType;
     if (categoryId) query.categoryId = categoryId;
     if (subCategoryId) query.subCategoryId = subCategoryId;
-    if (brandId) query.brandId = brandId;
+    if (brand) query.brand = brand;
     if (productId) query.productId = productId;
 
     query.transactionDate = {
@@ -179,7 +179,6 @@ export const downloadTransactionsPDF = async (req, res, next) => {
       .populate('productId')
       .populate('categoryId')
       .populate('subCategoryId')
-      .populate('brandId')
       .populate('unitId')
       .populate('performedBy', 'fullName')
       .sort({ transactionDate: -1 });
@@ -203,7 +202,7 @@ export const downloadTransactionsPDF = async (req, res, next) => {
 
 export const downloadTransactionsExcel = async (req, res, next) => {
   try {
-    const { startDate, endDate, transactionType, categoryId, subCategoryId, brandId, productId } =
+    const { startDate, endDate, transactionType, categoryId, subCategoryId, brand, productId } =
       req.query;
 
     if (!startDate || !endDate) {
@@ -218,7 +217,7 @@ export const downloadTransactionsExcel = async (req, res, next) => {
     if (transactionType) query.transactionType = transactionType;
     if (categoryId) query.categoryId = categoryId;
     if (subCategoryId) query.subCategoryId = subCategoryId;
-    if (brandId) query.brandId = brandId;
+    if (brand) query.brand = brand;
     if (productId) query.productId = productId;
 
     query.transactionDate = {
@@ -230,7 +229,6 @@ export const downloadTransactionsExcel = async (req, res, next) => {
       .populate('productId')
       .populate('categoryId')
       .populate('subCategoryId')
-      .populate('brandId')
       .populate('unitId')
       .populate('performedBy', 'fullName')
       .sort({ transactionDate: -1 });

@@ -49,6 +49,7 @@ const ProductMasterPage = () => {
     code: '',
     categoryId: '',
     subCategoryId: '',
+    brand: '',
     isActive: true
   });
   const [editingId, setEditingId] = useState(null);
@@ -210,6 +211,7 @@ const ProductMasterPage = () => {
       code: '',
       categoryId: '',
       subCategoryId: '',
+      brand: '',
       isActive: true
     });
     setEditingId(null);
@@ -220,7 +222,8 @@ const ProductMasterPage = () => {
     setProductForm({
       ...prod,
       categoryId: typeof prod.categoryId === 'object' ? prod.categoryId._id : prod.categoryId,
-      subCategoryId: typeof prod.subCategoryId === 'object' ? prod.subCategoryId._id : prod.subCategoryId
+      subCategoryId: typeof prod.subCategoryId === 'object' ? prod.subCategoryId._id : prod.subCategoryId,
+      brand: prod.brand || ''
     });
     setEditingId(prod._id);
     setProductDialog(true);
@@ -453,6 +456,7 @@ const ProductMasterPage = () => {
                       <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
                         <TableCell sx={{ fontWeight: 600 }}>Category</TableCell>
                         <TableCell sx={{ fontWeight: 600 }}>Sub-Category</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>Brand</TableCell>
                         <TableCell sx={{ fontWeight: 600 }}>Name</TableCell>
                         <TableCell sx={{ fontWeight: 600 }}>SKU</TableCell>
                         <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
@@ -469,6 +473,7 @@ const ProductMasterPage = () => {
                           <TableRow key={prod._id}>
                             <TableCell>{category?.name || '-'}</TableCell>
                             <TableCell>{subCategory?.name || '-'}</TableCell>
+                            <TableCell>{prod.brand || '-'}</TableCell>
                             <TableCell>{prod.name}</TableCell>
                             <TableCell>{prod.code}</TableCell>
                             <TableCell>
@@ -627,6 +632,15 @@ const ProductMasterPage = () => {
                 ))}
             </Select>
           </FormControl>
+          <TextField
+            fullWidth
+            label="Brand"
+            value={productForm.brand}
+            onChange={(e) => setProductForm({ ...productForm, brand: e.target.value })}
+            margin="normal"
+            size="small"
+            placeholder="e.g., Ibery, Amul, Aavin, Milky Mist"
+          />
 
         </DialogContent>
         <DialogActions>

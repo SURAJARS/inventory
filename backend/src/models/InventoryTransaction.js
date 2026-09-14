@@ -29,9 +29,9 @@ const inventoryTransactionSchema = new mongoose.Schema(
       ref: 'SubCategory',
       required: true
     },
-    brandId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Brand'
+    brand: {
+      type: String,
+      trim: true
     },
     quantity: {
       type: Number,

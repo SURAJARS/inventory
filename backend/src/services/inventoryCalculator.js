@@ -128,7 +128,7 @@ export const getClosingStockReport = async (closingDate, filters = {}) => {
     };
     if (filters.categoryId) matchStage.categoryId = filters.categoryId;
     if (filters.subCategoryId) matchStage.subCategoryId = filters.subCategoryId;
-    if (filters.brandId) matchStage.brandId = filters.brandId;
+    if (filters.brand) matchStage.brand = filters.brand;
     if (filters.productId) matchStage.productId = filters.productId;
 
     console.log('Closing Stock Match Stage:', matchStage);
@@ -138,7 +138,6 @@ export const getClosingStockReport = async (closingDate, filters = {}) => {
       .populate('productId')
       .populate('categoryId')
       .populate('subCategoryId')
-      .populate('brandId')
       .populate('unitId')
       .lean();
 
@@ -175,7 +174,7 @@ export const getClosingStockReport = async (closingDate, filters = {}) => {
           productName: txn.productId.name,
           categoryName: txn.categoryId?.name || '-',
           subCategoryName: txn.subCategoryId?.name || '-',
-          brandName: txn.brandId?.name || '-',
+          brandName: txn.brand || '-',
           unitCode: txn.unitId?.code || '-',
           stockIn: 0,
           stockOut: 0,
@@ -244,7 +243,7 @@ export const getTransactionHistory = async (filters = {}, page = 1, limit = 50) 
     if (filters.transactionType) query.transactionType = filters.transactionType;
     if (filters.categoryId) query.categoryId = filters.categoryId;
     if (filters.subCategoryId) query.subCategoryId = filters.subCategoryId;
-    if (filters.brandId) query.brandId = filters.brandId;
+    if (filters.brand) query.brand = filters.brand;
     if (filters.productId) query.productId = filters.productId;
     if (filters.performedBy) query.performedBy = filters.performedBy;
 
@@ -266,7 +265,6 @@ export const getTransactionHistory = async (filters = {}, page = 1, limit = 50) 
       .populate('productId')
       .populate('categoryId')
       .populate('subCategoryId')
-      .populate('brandId')
       .populate('unitId')
       .populate('performedBy', 'fullName')
       .sort({ transactionDate: -1 })

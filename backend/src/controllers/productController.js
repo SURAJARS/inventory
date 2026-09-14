@@ -337,17 +337,16 @@ export const createUnit = async (req, res, next) => {
 // ===== PRODUCT =====
 export const getProducts = async (req, res, next) => {
   try {
-    const { categoryId, subCategoryId, brandId, isActive = true } = req.query;
+    const { categoryId, subCategoryId, brand, isActive = true } = req.query;
     const query = isActive !== 'false' ? { isActive: true } : {};
 
     if (categoryId) query.categoryId = categoryId;
     if (subCategoryId) query.subCategoryId = subCategoryId;
-    if (brandId) query.brandId = brandId;
+    if (brand) query.brand = brand;
 
     const products = await Product.find(query)
       .populate('categoryId', 'name')
       .populate('subCategoryId', 'name')
-      .populate('brandId', 'name')
       .populate('unitId', 'code name')
       .sort({ name: 1 });
 
@@ -362,7 +361,7 @@ export const getProducts = async (req, res, next) => {
 
 export const createProduct = async (req, res, next) => {
   try {
-    const { name, code, categoryId, subCategoryId, brandId, unitId, minimumStockLevel } = req.body;
+    const { name, code, categoryId, subCategoryId, brand, unitId, minimumStockLevel } = req.body;
 
     if (!name || !categoryId || !subCategoryId) {
       return res.status(400).json({
@@ -389,7 +388,7 @@ export const createProduct = async (req, res, next) => {
       code,
       categoryId,
       subCategoryId,
-      brandId,
+      brand,
       unitId,
       minimumStockLevel: minimumStockLevel || 0
     });
@@ -409,7 +408,7 @@ export const createProduct = async (req, res, next) => {
 export const updateProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { name, code, categoryId, subCategoryId, brandId, unitId, minimumStockLevel, isActive } =
+    const { name, code, categoryId, subCategoryId, brand, unitId, minimumStockLevel, isActive } =
       req.body;
 
     const product = await Product.findById(id);
@@ -424,7 +423,7 @@ export const updateProduct = async (req, res, next) => {
     if (code) product.code = code;
     if (categoryId) product.categoryId = categoryId;
     if (subCategoryId) product.subCategoryId = subCategoryId;
-    if (brandId) product.brandId = brandId;
+    if (brand !== undefined) product.brand = brand;
     if (unitId) product.unitId = unitId;
     if (minimumStockLevel !== undefined) product.minimumStockLevel = minimumStockLevel;
     if (isActive !== undefined) product.isActive = isActive;
@@ -471,7 +470,6 @@ export const getProductById = async (req, res, next) => {
     const product = await Product.findById(id)
       .populate('categoryId')
       .populate('subCategoryId')
-      .populate('brandId')
       .populate('unitId');
 
     if (!product) {

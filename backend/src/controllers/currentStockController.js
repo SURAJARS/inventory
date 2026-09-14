@@ -3,17 +3,16 @@ import { getCurrentStock } from '../services/inventoryCalculator.js';
 
 export const getCurrentStockAll = async (req, res, next) => {
   try {
-    const { categoryId, subCategoryId, brandId } = req.query;
+    const { categoryId, subCategoryId, brand } = req.query;
 
     const query = { isActive: true };
     if (categoryId) query.categoryId = categoryId;
     if (subCategoryId) query.subCategoryId = subCategoryId;
-    if (brandId) query.brandId = brandId;
+    if (brand) query.brand = brand;
 
     const products = await Product.find(query)
       .populate('categoryId', 'name')
       .populate('subCategoryId', 'name')
-      .populate('brandId', 'name')
       .populate('unitId', 'code name')
       .sort({ name: 1 });
 
@@ -28,7 +27,8 @@ export const getCurrentStockAll = async (req, res, next) => {
           category: product.categoryId?.name || 'N/A',
           categoryId: product.categoryId?._id || null,
           subCategory: product.subCategoryId?.name || 'N/A',
-          brand: product.brandId?.name || 'N/A',
+          subCategoryId: product.subCategoryId?._id || null,
+          brand: product.brand || 'N/A',
           unit: product.unitId?.code || 'N/A',
           currentStock: currentStock || 0,
           minimumStockLevel: product.minimumStockLevel || 0,
@@ -53,7 +53,6 @@ export const getCurrentStockByProduct = async (req, res, next) => {
     const product = await Product.findById(id)
       .populate('categoryId')
       .populate('subCategoryId')
-      .populate('brandId')
       .populate('unitId');
 
     if (!product) {
@@ -81,7 +80,7 @@ export const getCurrentStockByProduct = async (req, res, next) => {
         code: product.code,
         category: product.categoryId?.name || 'N/A',
         subCategory: product.subCategoryId?.name || 'N/A',
-        brand: product.brandId?.name || 'N/A',
+        brand: product.brand || 'N/A',
         unit: product.unitId?.code || 'N/A',
         currentStock: currentStock || 0,
         minimumStockLevel: product.minimumStockLevel,
@@ -114,7 +113,6 @@ export const searchProducts = async (req, res, next) => {
     })
       .populate('categoryId', 'name')
       .populate('subCategoryId', 'name')
-      .populate('brandId', 'name')
       .populate('unitId', 'code name')
       .limit(parseInt(limit));
 
@@ -128,7 +126,7 @@ export const searchProducts = async (req, res, next) => {
           code: product.code,
           category: product.categoryId?.name,
           subCategory: product.subCategoryId?.name,
-          brand: product.brandId?.name,
+          brand: product.brand,
           unit: product.unitId?.code,
           currentStock
         };

@@ -124,7 +124,7 @@ export const generateTransactionExcel = (transactions, startDate, endDate, store
         type,
         row.categoryId?.name || '',
         row.subCategoryId?.name || '',
-        row.brandId?.name || '',
+        row.brand || '',
         row.productId?.name || '',
         row.quantity,
         row.unitId?.code || '',

@@ -23,9 +23,9 @@ const productSchema = new mongoose.Schema(
       ref: 'SubCategory',
       required: [true, 'Sub-category is required']
     },
-    brandId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Brand'
+    brand: {
+      type: String,
+      trim: true
     },
     unitId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -55,6 +55,6 @@ const productSchema = new mongoose.Schema(
 // Index for common queries
 productSchema.index({ categoryId: 1, isActive: 1 });
 productSchema.index({ subCategoryId: 1, isActive: 1 });
-productSchema.index({ brandId: 1, isActive: 1 });
+productSchema.index({ brand: 1, isActive: 1 });
 
 export default mongoose.model('Product', productSchema);

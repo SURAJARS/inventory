@@ -100,7 +100,7 @@ const StockInPage = () => {
   const loadProductStock = useCallback(async () => {
   try {
     const res = await currentStockAPI.getByProduct(formData.productId);
-    setCurrentStock((res.data && res.data.currentStock) || 0);
+    setCurrentStock((res.data && res.data.data && res.data.data.currentStock) || 0);
   } catch (err) {
     console.error('Failed to load product stock');
   }
