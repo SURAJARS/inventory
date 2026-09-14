@@ -26,6 +26,7 @@ export const getCurrentStockAll = async (req, res, next) => {
           name: product.name,
           code: product.code,
           category: product.categoryId?.name || 'N/A',
+          categoryId: product.categoryId?._id || null,
           subCategory: product.subCategoryId?.name || 'N/A',
           brand: product.brandId?.name || 'N/A',
           unit: product.unitId?.code || 'N/A',

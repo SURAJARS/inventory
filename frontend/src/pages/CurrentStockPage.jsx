@@ -58,7 +58,7 @@ const CurrentStockPage = () => {
 
     if (filters.categoryId) {
       result = result.filter(
-        (item) => item.category === filters.categoryId
+        (item) => String(item.categoryId) === String(filters.categoryId)
       );
     }
 
